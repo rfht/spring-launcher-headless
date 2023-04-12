@@ -56,7 +56,7 @@ class Wizard extends EventEmitter {
 							wizard.nextStep();
 						});
 					}
-				}
+				};
 
 				// During first run, we check config first because the one with the
 				// launcher might be very old.

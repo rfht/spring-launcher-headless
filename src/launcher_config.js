@@ -31,6 +31,8 @@ const defaultSetup = {
 	// Can be set globally.
 	'error_suffix': null,
 	'disable_win_ascii_install_path_check': false,
+	// Keeping this flag only in case we need to revert to old behavior.
+	'replay_parser_skip_packets': true,
 
 	// Default values for environment variables to be set for all the executed
 	// child processes like pr-downloader.
@@ -238,7 +240,8 @@ function hotReloadSafe(newFile) {
 		'log_upload_url',
 		'config_url',
 		'error_suffix',
-		'disable_win_ascii_install_path_check'
+		'disable_win_ascii_install_path_check',
+		'replay_parser_skip_packets',
 	];
 	if (!objEqual(newFile, configFile, noRestartGlobalProperties)) {
 		return 'restart';

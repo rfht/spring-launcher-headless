@@ -3,6 +3,7 @@
 const fs = require('fs').promises;
 const { constants } = require('fs');
 const path = require('path');
+const { config } = require('./launcher_config');
 
 const { DemoParser } = require('sdfz-demo-parser');
 
@@ -18,7 +19,9 @@ async function parseReplay(springPath, replayPath, exitIfCacheExists) {
 	} catch (err) {
 		// If there isn't, go parse the original replay, create the cache file,
 		// and return the info.
-		const parser = new DemoParser();
+		const parser = new DemoParser({
+			skipPackets: config.replay_parser_skip_packets,
+		});
 		const demo = await parser.parseDemo(fullReplayPath);
 		const info = {
 			relativePath : replayPath,
