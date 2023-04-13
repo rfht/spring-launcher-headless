@@ -176,7 +176,13 @@ class Wizard extends EventEmitter {
 					name: 'launcher_update',
 					action: () => {
 						log.info('Checking for launcher update');
-						updateCheckPromise.then(updateAvailable => {
+
+						const checkTimeout = new Promise(resolve => setTimeout(() => {
+							log.error('Launcher update check timed out, ignoring');
+							resolve(false);
+						}, 5000));
+
+						Promise.race([updateCheckPromise, checkTimeout]).then(updateAvailable => {
 							if (!updateAvailable) {
 								log.info('No update available.');
 								wizard.nextStep();
@@ -184,7 +190,8 @@ class Wizard extends EventEmitter {
 								performUpdate();
 							}
 						}).catch(error => {
-							log.error(`Failed to check for launcher updates. Error: ${error}`);
+							log.error(`Failed to check for launcher updates. Error: ${error}, ignoring`);
+							wizard.nextStep();
 						});
 					}
 				});
