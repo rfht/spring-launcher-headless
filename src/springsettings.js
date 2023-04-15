@@ -6,6 +6,7 @@ const os = require('os');
 
 const { writePath } = require('./spring_platform');
 const { log } = require('./spring_log');
+const { config } = require('./launcher_config');
 
 class Springsettings extends EventEmitter {
 
@@ -107,7 +108,7 @@ class Springsettings extends EventEmitter {
 	}
 
 	applyDefaultsAndOverrides(overrides) {
-		const defaults = require('./springsettings.json');
+		const defaults = config.default_springsettings || {};
 		const springsettingsPath = `${writePath}/springsettings.cfg`;
 		const backupSettingsPath = `${writePath}/springsettings-backup.cfg`
 

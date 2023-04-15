@@ -56,7 +56,8 @@ const defaultSetup = {
 		'game_options': undefined,
 		// Key value settings to set in springsettings.cfg. It *overrides*
 		// the existing values, including user specified ones. For setting
-		// defaults for options, see springsettings.json.
+		// defaults for options, there is a top level default_springsettings
+		// property.
 		'springsettings': {}
 	}
 };
@@ -242,6 +243,7 @@ function hotReloadSafe(newFile) {
 		'error_suffix',
 		'disable_win_ascii_install_path_check',
 		'replay_parser_skip_packets',
+		'default_springsettings',
 	];
 	if (!objEqual(newFile, configFile, noRestartGlobalProperties)) {
 		return 'restart';
