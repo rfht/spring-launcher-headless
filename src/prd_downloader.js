@@ -31,6 +31,20 @@ class PrdDownloader extends EventEmitter {
 
 	downloadPackage(name, args) {
 		let finished = false;
+
+		if (!fs.existsSync(springPlatform.prDownloaderPath)) {
+			if (process.platform == 'win32') {
+				this.emit('failed', name,
+					'\'pr-downloader.exe\' file is missing. This issue may be caused by an ' +
+					'antivirus program, such as Avast, accidentally deleting the file. ' +
+					'Please ensure your antivirus is up-to-date and reinstall the game.');
+			} else {
+				this.emit('failed', name,
+					'pr-downloader binary not found in the installation directory.');
+			}
+			return;
+		}
+
 		const prd = spawn(springPlatform.prDownloaderPath, args);
 		this.emit('started', name);
 
