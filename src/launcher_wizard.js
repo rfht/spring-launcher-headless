@@ -42,7 +42,7 @@ class Wizard extends EventEmitter {
 
 				const asyncConfigFetch = {
 					promise: null,
-					action: () => got(config.config_url).json()
+					action: () => got(config.config_url, { timeout: { request: 5000 } }).json()
 				}
 				asyncSteps.push(asyncConfigFetch);
 
