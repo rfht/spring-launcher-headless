@@ -94,7 +94,12 @@ function stepError(message) {
 	lblFull.addEventListener('click', event => {
 		if (event.target.tagName.toLowerCase() === 'a') {
 			event.preventDefault();
-			shell.openExternal(event.target.href);
+
+			if (event.target.href == 'special:log-upload-ask') {
+				ipcRenderer.send('log-upload-ask');
+			} else {
+				shell.openExternal(event.target.href);
+			}
 		}
 	});
 
