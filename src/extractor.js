@@ -33,14 +33,14 @@ class Extractor extends EventEmitter {
 				fs.renameSync(tmpDestination, destination);
 			} catch (error) {
 				log.error(`Failed to move ${tmpDestination} to final destination ${destination} with error: ${error}.`);
-				this.emit('failed', name, `Extraction failure: failed to move to destination ${err}`);
+				this.emit('failed', name, `Extraction failure: failed to move to destination ${error}`);
 				return;
 			}
 			try {
 				log.info(`Deleting file after extraction has been finished: ${source}`);
 				fs.unlinkSync(source);
 			} catch (error) {
-				log.error(`Cannot unlink file after extracting: ${source}`);
+				log.error(`Cannot unlink file after extracting: ${source}: ${error}`);
 			}
 			this.emit('finished', );
 		});
@@ -63,13 +63,13 @@ class Extractor extends EventEmitter {
 					log.info(`Deleting temporary after extraction has failed: ${source}`);
 					fs.unlinkSync(source);
 				} catch (error) {
-					log.error(`Cannot unlink file after extracting: ${source}`);
+					log.error(`Cannot unlink file after extracting: ${source}: ${error}`);
 				}
 				try {
 					log.info(`Deleting temp destination after extraction has failed: ${tmpDestination}`);
 					fs.rmdirSync(tmpDestination, { recursive: true });
 				} catch (error) {
-					log.error(`Cannot unlink temp file after extracting: ${tmpDestination}`);
+					log.error(`Cannot unlink temp file after extracting: ${tmpDestination}: ${error}`);
 				}
 
 				this.emit('failed', name, `Extraction failure: ${err}`);
