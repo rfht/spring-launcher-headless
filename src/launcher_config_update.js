@@ -11,18 +11,22 @@ const { applyDefaults, hotReloadSafe, reloadConfig, validateNewConfig, config } 
 function handleConfigUpdate(newConfig) {
 	validateNewConfig(newConfig);
 
+	const newConfigStr = JSON.stringify(newConfig, null, 4);
+
 	newConfig = applyDefaults(newConfig);
 	const reloadType = hotReloadSafe(newConfig);
-	if (reloadType == "identical") {
-		log.info('Config files are identical');
-		return;
+
+	const finalConfigPath = path.join(writePath, 'config.json');
+	if (reloadType != "identical" || !fs.existsSync(finalConfigPath)) {
+		const tmpConfigFile = path.join(writePath, 'config.new.json');
+		fs.writeFileSync(tmpConfigFile, newConfigStr);
+		fs.renameSync(tmpConfigFile, finalConfigPath);
 	}
 
-	const tmpConfigFile = path.join(writePath, 'config.new.json');
-	fs.writeFileSync(tmpConfigFile, JSON.stringify(newConfig, null, 4));
-	fs.renameSync(tmpConfigFile, path.join(writePath, 'config.json'));
-
 	switch (reloadType) {
+		case "identical":
+			log.info('Config files are identical');
+			break;
 		case "restart":
 			log.info('Config files are different - restarting');
 
