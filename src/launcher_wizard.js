@@ -33,17 +33,24 @@ class Wizard extends EventEmitter {
 	}
 
 	generateSteps() {
-		var steps = [];
+		const steps = [];
+		const asyncSteps = [];
+
 		if (!config.no_downloads) {
 			let pushConfigFetchActionAtEnd = null;
 			if (config.config_url != null) {
-				const newConfig = got(config.config_url).json();
+
+				const asyncConfigFetch = {
+					promise: null,
+					action: () => got(config.config_url).json()
+				}
+				asyncSteps.push(asyncConfigFetch);
 
 				const configFetchAction = {
 					name: 'config update',
 					action: () => {
 						log.info(`Checking for config update from: ${config.config_url}...`);
-						newConfig.then(newConfig => {
+						asyncConfigFetch.promise.then(newConfig => {
 							try {
 								handleConfigUpdate(newConfig);
 							} catch (err) {
@@ -52,6 +59,9 @@ class Wizard extends EventEmitter {
 							}
 							wizard.nextStep();
 						}).catch(error => {
+							if (error.code == 'ERR_CANCELED') {
+								return;
+							}
 							log.error(`Failed to get config update. Error: ${error}, ignoring`);
 							wizard.nextStep();
 						});
@@ -140,17 +150,25 @@ class Wizard extends EventEmitter {
 			// Queue asynchronous check for launcher update.
 			const isDev = !require('electron').app.isPackaged;
 			if (!isDev) {
-				const updateCheckPromise = new Promise((resolve, reject) => {
-					updater.on('update-available', () => {
-						resolve(true);
-					});
-					updater.on('update-not-available', () => {
-						resolve(false);
-					});
-					updater.on('error', error => {
-						reject(error);
-					});
-				});
+				const asyncLauncherUpdateCheck = {
+					promise: null,
+					action: () => {
+						const promise = new Promise((resolve, reject) => {
+							updater.on('update-available', () => {
+								resolve(true);
+							});
+							updater.on('update-not-available', () => {
+								resolve(false);
+							});
+							updater.on('error', error => {
+								reject(error);
+							});
+						})
+						updater.checkForUpdates();
+						return promise;
+					}
+				}
+				asyncSteps.push(asyncLauncherUpdateCheck);
 
 				const performUpdate = () => {
 					gui.send('dl-started', 'autoupdate');
@@ -177,12 +195,17 @@ class Wizard extends EventEmitter {
 					action: () => {
 						log.info('Checking for launcher update');
 
-						const checkTimeout = new Promise(resolve => setTimeout(() => {
-							log.error('Launcher update check timed out, ignoring');
-							resolve(false);
-						}, 5000));
+						let timeoutId;
+						const checkTimeout = new Promise(resolve => {
+							timeoutId = setTimeout(() => {
+								log.error('Launcher update check timed out, ignoring');
+								resolve(false);
 
-						Promise.race([updateCheckPromise, checkTimeout]).then(updateAvailable => {
+							}, 5000);
+						});
+
+						Promise.race([asyncLauncherUpdateCheck.promise, checkTimeout]).then(updateAvailable => {
+							clearTimeout(timeoutId);
 							if (!updateAvailable) {
 								log.info('No update available.');
 								wizard.nextStep();
@@ -195,8 +218,6 @@ class Wizard extends EventEmitter {
 						});
 					}
 				});
-
-				updater.checkForUpdates();
 			} else {
 				console.log('Development version: no self-update required');
 			}
@@ -240,6 +261,7 @@ class Wizard extends EventEmitter {
 
 		this.started = false;
 		this.steps = steps;
+		this.asyncSteps = asyncSteps;
 		this.enabled = true;
 
 		this.emit('stepsGenerated', this.steps);
@@ -266,6 +288,9 @@ class Wizard extends EventEmitter {
 		if (!this.started) {
 			gui.send('wizard-started');
 			this.started = true;
+			for (const step of this.asyncSteps) {
+				step.promise = step.action();
+			}
 		}
 
 		log.info(`Step: ${JSON.stringify(step, null, 4)}`);
