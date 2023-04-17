@@ -66,7 +66,7 @@
     "extract-zip": "2.0.1",
     "got": "11.8.5",
     "node-7z": "2.1.2",
-    "sdfz-demo-parser": "5.7.0",
+    "sdfz-demo-parser": "5.9.1",
     "spring-map-parser": "4.4.0",
     "spring-nextgen-dl": "0.2.3",
     "yargs": "17.5.1"
