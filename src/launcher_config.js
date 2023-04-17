@@ -286,11 +286,10 @@ const proxy = new Proxy({
 	get: function (target, name) {
 		if (target[name] != undefined) {
 			return target[name];
-		} else if (configFile[name] != undefined) {
-			return configFile[name];
+		} else if (currentConfig[name] != undefined) {
+			return currentConfig[name];
 		}
-
-		return currentConfig[name];
+		return configFile[name];
 	},
 	set: function (_, name, value) {
 		currentConfig[name] = value;
