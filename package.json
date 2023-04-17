@@ -65,6 +65,7 @@
     "electron-updater": "5.2.1",
     "extract-zip": "2.0.1",
     "got": "11.8.5",
+    "json-stable-stringify": "^1.0.2",
     "node-7z": "2.1.2",
     "sdfz-demo-parser": "5.9.1",
     "spring-map-parser": "4.4.0",

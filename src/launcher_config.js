@@ -6,6 +6,7 @@ const argv = require('./launcher_args');
 const { resolveWritePath } = require('./write_path');
 const path = require('path');
 const fs = require('fs');
+const stableStringify = require('json-stable-stringify');
 
 const defaultSetup = {
 	'package': {
@@ -216,7 +217,7 @@ function objEqual(a, b, ignoreProp = []) {
 		a[prop] = null;
 		b[prop] = null;
 	}
-	return JSON.stringify(a) == JSON.stringify(b);
+	return stableStringify(a) == stableStringify(b);
 }
 
 function validateNewConfig(newFile) {
