@@ -147,6 +147,7 @@ function applyDefaults(conf) {
 		const defaultSetupCopy = JSON.parse(JSON.stringify(defaultSetup));
 		const setup = mergeDeep(defaultSetupCopy, conf.setups[i]);
 		setup.title = conf.title;
+		// It needs to be accesible from rendering process.
 		if (!setup.error_suffix) {
 			setup.error_suffix = conf.error_suffix;
 		}
@@ -158,6 +159,7 @@ function applyDefaults(conf) {
 let configs = [];
 let availableConfigs = [];
 let currentConfig = null;
+let configFile = null;
 let originalEnv = { ...process.env };
 
 function setCurrentConfig(setup) {
@@ -173,6 +175,7 @@ function setCurrentConfig(setup) {
 }
 
 function reloadConfig(conf) {
+	configFile = conf;
 	configs = [];
 	availableConfigs = [];
 	currentConfig = null;
@@ -192,9 +195,7 @@ function reloadConfig(conf) {
 	return conf;
 }
 
-let configFile = loadConfig();
-configFile = applyDefaults(configFile);
-reloadConfig(configFile);
+reloadConfig(applyDefaults(loadConfig()));
 
 /**
  * Deep compare of two objects for equality with support for ingoring properties.
@@ -237,17 +238,8 @@ function hotReloadSafe(newFile) {
 		return 'identical';
 	}
 
-	const noRestartGlobalProperties = [
-		'setups',
-		'log_upload_url',
-		'config_url',
-		'error_suffix',
-		'disable_win_ascii_install_path_check',
-		'replay_parser_skip_packets',
-		'default_springsettings',
-	];
-	if (!objEqual(newFile, configFile, noRestartGlobalProperties)) {
-		return 'restart';
+	if (!objEqual(newFile, configFile, ['setups'])) {
+		return 'reload';
 	}
 
 	for (const setup of newFile.setups) {
