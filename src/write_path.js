@@ -1,5 +1,6 @@
 const { app } = require('electron');
 const path = require('path');
+const fs = require('fs');
 const platformName = process.platform;
 const isDev = !require('electron').app.isPackaged;
 
@@ -21,7 +22,12 @@ function resolveWritePath(title) {
 		}
 	}
 
-	return path.join(app.getPath('documents'), title);
+	const oldDir = path.join(app.getPath('documents'), title);
+	if (fs.existsSync(oldDir)) {
+		return oldDir;
+	}
+	const xdgStateHome = process.env.XDG_STATE_HOME || path.join(process.env.HOME, '.local/state');
+	return path.join(xdgStateHome, title);
 }
 
 module.exports = {

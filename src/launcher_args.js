@@ -8,7 +8,7 @@ const argv = require('yargs') // eslint-disable-line
 	.option('write-path', {
 		alias: 'w',
 		type: 'string',
-		description: 'Path to Spring'
+		description: 'Path to directory holding data'
 	})
 	.option('disable-launcher-update', {
 		type: 'boolean',

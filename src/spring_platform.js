@@ -28,7 +28,7 @@ const writePath = resolveWritePath(config.title);
 assert(writePath != undefined);
 if (!existsSync(writePath)) {
 	try {
-		mkdirSync(writePath);
+		mkdirSync(writePath, { recursive: true });
 	} catch (err) {
 		log.error(`Cannot create writePath at: ${writePath}`);
 		log.error(err);
