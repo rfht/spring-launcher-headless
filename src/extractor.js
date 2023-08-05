@@ -2,7 +2,7 @@
 
 const EventEmitter = require('events');
 const fs = require('fs');
-const path = require('path');
+const { renameSyncWithRetry } = require('./fs_utils');
 
 const extractZip = require('extract-zip');
 
@@ -30,7 +30,7 @@ class Extractor extends EventEmitter {
 		extractor.on('finished', () => {
 			try {
 				log.info(`Moving from ${tmpDestination} after extraction has been finished to ${destination}`);
-				fs.renameSync(tmpDestination, destination);
+				renameSyncWithRetry(tmpDestination, destination);
 			} catch (error) {
 				log.error(`Failed to move ${tmpDestination} to final destination ${destination} with error: ${error}.`);
 				this.emit('failed', name, `Extraction failure: failed to move to destination ${error}`);

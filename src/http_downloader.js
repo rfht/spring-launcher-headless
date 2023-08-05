@@ -2,6 +2,8 @@
 
 const EventEmitter = require('events');
 const fs = require('fs');
+const { renameSyncWithRetry } = require('./fs_utils');
+
 const path = require('path');
 
 const { Butler } = require('spring-nextgen-dl');
@@ -74,7 +76,7 @@ class HttpDownloader extends EventEmitter {
 				makeParentDir(destination);
 
 				if (!resource['extract']) {
-					fs.renameSync(destinationTemp, destination);
+					renameSyncWithRetry(destinationTemp, destination);
 					this.emit('finished', name);
 					return;
 				}

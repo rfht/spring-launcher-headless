@@ -4,6 +4,7 @@ const { gui } = require('./launcher_gui');
 const { log } = require('./spring_log');
 const path = require('path');
 const fs = require('fs');
+const { renameSyncWithRetry } = require('./fs_utils');
 const { app, BrowserWindow, dialog } = require('electron');
 const { writePath } = require('./spring_platform');
 const { applyDefaults, hotReloadSafe, reloadConfig, validateNewConfig, config } = require('./launcher_config');
@@ -20,7 +21,7 @@ function handleConfigUpdate(newConfig) {
 	if (reloadType != "identical" || !fs.existsSync(finalConfigPath)) {
 		const tmpConfigFile = path.join(writePath, 'config.new.json');
 		fs.writeFileSync(tmpConfigFile, newConfigStr);
-		fs.renameSync(tmpConfigFile, finalConfigPath);
+		renameSyncWithRetry(tmpConfigFile, finalConfigPath);
 	}
 
 	switch (reloadType) {

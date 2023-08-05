@@ -2,6 +2,7 @@
 
 const { EventEmitter } = require('events');
 const fs = require('fs');
+const { renameSyncWithRetry } = require('./fs_utils');
 const os = require('os');
 
 const { writePath } = require('./spring_platform');
@@ -56,7 +57,7 @@ class Springsettings extends EventEmitter {
 		}
 		const springsettingsPathTmp = springsettingsPath + '.tmp';
 		fs.writeFileSync(springsettingsPathTmp, result.join(os.EOL) + os.EOL);
-		fs.renameSync(springsettingsPathTmp, springsettingsPath);
+		renameSyncWithRetry(springsettingsPathTmp, springsettingsPath);
 	}
 
 	#applyDefaults(settings, defaults) {
