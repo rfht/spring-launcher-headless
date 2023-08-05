@@ -102,24 +102,20 @@ app.prependListener('ready', () => {
 
 		if (process.platform == 'win32' &&
 			!isPrintableASCII(writePath) &&
-			!config.disable_win_ascii_install_path_check &&
-			!settings.getSync('disableNonAsciiPathWarning')) {
-			dialog.showMessageBox(mainWindow, {
-				type: 'warning',
-				title: 'Non-ASCII install directory',
+			!config.disable_win_ascii_install_path_check) {
+			dialog.showMessageBoxSync(mainWindow, {
+				type: 'error',
+				title: 'Non-English alphabet install directory',
 				buttons: ['OK'],
-				message: 'Beyond All Reason installation path contains non-ASCII characters.',
+				message: 'Game installation path contains non-English alphabet characters.',
 				detail:
-					`Current installation path ${writePath} constains non-ASCII characters (non English alphabet letters). ` +
-					'It is currently not supported and will likely prevent the game updating and starting properly. ' +
-					'Please reinstall the game under location that contains only ASCII characters.',
-				checkboxLabel: 'Do not show this message again',
+					`Current installation location "${writePath}" constains non-English alphabet letters (non-ASCII characters). ` +
+					'Examples of such problematic characters are: ą 자 ö ł β. ' +
+					'It is currently not supported and will cause game to crash. \r\n\r\n' +
+					'Please reinstall the game under a different location that contains only English alphabet characters.',
 				noLink: true,
-			}).then(({ checkboxChecked }) => {
-				if (checkboxChecked) {
-					settings.setSync('disableNonAsciiPathWarning', true);
-				}
 			});
+			app.quit();
 		}
 
 		gui.send('all-configs', config.getAvailableConfigs());
