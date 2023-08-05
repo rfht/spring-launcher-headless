@@ -9,7 +9,12 @@ const argv = require('yargs') // eslint-disable-line
 		alias: 'w',
 		type: 'string',
 		description: 'Path to Spring'
-	}).argv;
+	})
+	.option('disable-launcher-update', {
+		type: 'boolean',
+		description: 'Disables launcher application self update.'
+	})
+	.argv;
 
 if (argv.config != null) {
 	if (!fs.existsSync(argv.config)) {

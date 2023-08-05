@@ -4,6 +4,7 @@ const EventEmitter = require('events');
 const { app } = require('electron');
 
 const log = require('electron-log');
+const argv = require('./launcher_args');
 
 const { config } = require('./launcher_config');
 const { gui } = require('./launcher_gui');
@@ -149,7 +150,11 @@ class Wizard extends EventEmitter {
 
 			// Queue asynchronous check for launcher update.
 			const isDev = !require('electron').app.isPackaged;
-			if (!isDev) {
+			if (isDev) {
+				console.log('Development version: no self-update required');
+			} else if (argv.disableLauncherUpdate) {
+				console.log('Launcher application update disabled on command line');
+			} else {
 				const asyncLauncherUpdateCheck = {
 					promise: null,
 					action: () => {
@@ -218,8 +223,6 @@ class Wizard extends EventEmitter {
 						});
 					}
 				});
-			} else {
-				console.log('Development version: no self-update required');
 			}
 		}
 
