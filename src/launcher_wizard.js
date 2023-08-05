@@ -35,6 +35,9 @@ class Wizard extends EventEmitter {
 
 	generateSteps() {
 		const steps = [];
+		// Promises in async steps must never reject, because they can be awaited
+		// on much later, and when they reject before they are attached, node
+		// throws an unhandled rejection error.
 		const asyncSteps = [];
 
 		if (!config.no_downloads) {
@@ -43,27 +46,34 @@ class Wizard extends EventEmitter {
 
 				const asyncConfigFetch = {
 					promise: null,
-					action: () => got(config.config_url, { timeout: { request: 5000 } }).json()
-				}
+					action: () => {
+						return new Promise(resolve => {
+							got(config.config_url, { timeout: { request: 5000 } }).json()
+								.then(newConfig => resolve({newConfig, error: null}))
+								.catch(error => resolve({data: null, error}));
+						});
+					}
+				};
 				asyncSteps.push(asyncConfigFetch);
 
 				const configFetchAction = {
 					name: 'config update',
 					action: () => {
 						log.info(`Checking for config update from: ${config.config_url}...`);
-						asyncConfigFetch.promise.then(newConfig => {
-							try {
-								handleConfigUpdate(newConfig);
-							} catch (err) {
-								log.error('Failed to update config file. Ignoring.');
-								log.error(err);
+						asyncConfigFetch.promise.then(({newConfig, error}) => {
+							if (error) {
+								if (error.code == 'ERR_CANCELED') {
+									return;
+								}
+								log.error(`Failed to get config update. Error: ${error}, ignoring`);
+							} else {
+								try {
+									handleConfigUpdate(newConfig);
+								} catch (err) {
+									log.error('Failed to update config file. Ignoring.');
+									log.error(err);
+								}
 							}
-							wizard.nextStep();
-						}).catch(error => {
-							if (error.code == 'ERR_CANCELED') {
-								return;
-							}
-							log.error(`Failed to get config update. Error: ${error}, ignoring`);
 							wizard.nextStep();
 						});
 					}
@@ -158,21 +168,24 @@ class Wizard extends EventEmitter {
 				const asyncLauncherUpdateCheck = {
 					promise: null,
 					action: () => {
-						const promise = new Promise((resolve, reject) => {
-							updater.on('update-available', () => {
-								resolve(true);
-							});
-							updater.on('update-not-available', () => {
-								resolve(false);
-							});
-							updater.on('error', error => {
-								reject(error);
-							});
-						})
-						updater.checkForUpdates();
-						return promise;
+						// So, electron-updater API is stupid: https://github.com/electron-userland/electron-builder/issues/7447
+						// This code is leaking event listeners, but it's called only once so I don't care.
+						return new Promise(resolve => {
+							let resolved = false;
+							const resolveOnce = (result) => {
+								if (!resolved) {
+									resolved = true;
+									resolve(result);
+								}
+							};
+							updater.on('update-available', () => resolveOnce({updateAvailable: true, error: null}));
+							updater.on('update-not-available', () => resolveOnce({updateAvailable: false, error: null}));
+							updater.on('error', error => resolveOnce({updateAvailable: null, error}));
+							updater.checkForUpdates()
+								.catch(error=> resolveOnce({updateAvailable: null, error}));
+						});
 					}
-				}
+				};
 				asyncSteps.push(asyncLauncherUpdateCheck);
 
 				const performUpdate = () => {
@@ -203,24 +216,22 @@ class Wizard extends EventEmitter {
 						let timeoutId;
 						const checkTimeout = new Promise(resolve => {
 							timeoutId = setTimeout(() => {
-								log.error('Launcher update check timed out, ignoring');
-								resolve(false);
-
+								resolve({updateAvailable: null, error: 'timeout'});
 							}, 5000);
 						});
 
-						Promise.race([asyncLauncherUpdateCheck.promise, checkTimeout]).then(updateAvailable => {
-							clearTimeout(timeoutId);
-							if (!updateAvailable) {
-								log.info('No update available.');
-								wizard.nextStep();
-							} else {
-								performUpdate();
-							}
-						}).catch(error => {
-							log.error(`Failed to check for launcher updates. Error: ${error}, ignoring`);
-							wizard.nextStep();
-						});
+						Promise.race([asyncLauncherUpdateCheck.promise, checkTimeout])
+							.then(({updateAvailable, error}) => {
+								clearTimeout(timeoutId);
+								if (error) {
+									log.error(`Failed to check for launcher updates. Error: ${error}, ignoring`);
+									wizard.nextStep();
+								} else if (updateAvailable) {
+									performUpdate();
+								} else {
+									wizard.nextStep();
+								}
+							});
 					}
 				});
 			}
