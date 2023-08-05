@@ -34,6 +34,23 @@ if (!existsSync(writePath)) {
 		log.error(err);
 	}
 }
+
+// This is a workaround for bug in electron-updater that changed
+// installation path on windows on update. The bug was fixed, but
+// we put this workaround here to fix installations that were
+// already affected by the bug.
+// TODO: Delete this code after some a while.
+try {
+	if (process.platform == 'win32' &&
+		fs.existsSync(path.join(writePath, '../../data/springsettings.cfg')) &&
+		!fs.existsSync(path.join(writePath, 'springsettings.cfg'))) {
+		fs.rmdirSync(writePath);
+		fs.renameSync(path.join(writePath, '../../data'), writePath);
+	}
+} catch (err) {
+	log.error('Failed to move old installation to new location, ignoring. Error: ', err);
+}
+
 if (existsSync(FILES_DIR) && existsSync(writePath)) {
 	fs.readdirSync(FILES_DIR).forEach(function (file) {
 		const srcPath = path.join(FILES_DIR, file);
