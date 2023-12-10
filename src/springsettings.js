@@ -111,7 +111,7 @@ class Springsettings extends EventEmitter {
 	applyDefaultsAndOverrides(overrides) {
 		const defaults = config.default_springsettings || {};
 		const springsettingsPath = `${writePath}/springsettings.cfg`;
-		const backupSettingsPath = `${writePath}/springsettings-backup.cfg`
+		const backupSettingsPath = `${writePath}/springsettings-backup.cfg`;
 
 		// As of 2022-12-30 there are issues with reliability of operations
 		// on settings file in engine, so this code is a workaround to silently

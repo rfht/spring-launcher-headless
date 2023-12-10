@@ -7,7 +7,13 @@ const fs = require('fs');
 const { renameSyncWithRetry } = require('./fs_utils');
 const { app, BrowserWindow, dialog } = require('electron');
 const { writePath } = require('./spring_platform');
-const { applyDefaults, hotReloadSafe, reloadConfig, validateNewConfig, config } = require('./launcher_config');
+const {
+	applyDefaults,
+	hotReloadSafe,
+	reloadConfig,
+	validateNewConfig,
+	config,
+} = require('./launcher_config');
 
 function handleConfigUpdate(newConfig) {
 	validateNewConfig(newConfig);
@@ -18,17 +24,17 @@ function handleConfigUpdate(newConfig) {
 	const reloadType = hotReloadSafe(newConfig);
 
 	const finalConfigPath = path.join(writePath, 'config.json');
-	if (reloadType != "identical" || !fs.existsSync(finalConfigPath)) {
+	if (reloadType != 'identical' || !fs.existsSync(finalConfigPath)) {
 		const tmpConfigFile = path.join(writePath, 'config.new.json');
 		fs.writeFileSync(tmpConfigFile, newConfigStr);
 		renameSyncWithRetry(tmpConfigFile, finalConfigPath);
 	}
 
 	switch (reloadType) {
-		case "identical":
+		case 'identical':
 			log.info('Config files are identical');
 			break;
-		case "restart":
+		case 'restart':
 			log.info('Config files are different - restarting');
 
 			if (process.platform == 'win32') {
@@ -45,7 +51,7 @@ function handleConfigUpdate(newConfig) {
 			}
 			app.exit();
 			break;
-		case "reload":
+		case 'reload': {
 			log.info('Current config changed, reloading steps');
 			const oldConfigId = config.package.id;
 			reloadConfig(newConfig);
@@ -54,7 +60,8 @@ function handleConfigUpdate(newConfig) {
 			// We resolve it only here once to resolve issue with cicrular dependency on wizard.
 			require('./launcher_wizard_util').generateAndBroadcastWizard();
 			break;
-		case "same-setup":
+		}
+		case 'same-setup':
 			log.info('Current config is the same, continuing');
 			// In case current config is the same but the list of configs changed
 			// we refresh that list.

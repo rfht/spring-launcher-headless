@@ -3,7 +3,6 @@
 const electron = require('electron');
 const { app, BrowserWindow, Menu, Tray, dialog } = electron;
 const isDev = !require('electron').app.isPackaged;
-const settings = require('electron-settings');
 const { writePath } = require('./spring_platform');
 const { config } = require('./launcher_config');
 

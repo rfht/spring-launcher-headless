@@ -2,7 +2,7 @@
     "env": {
         "browser": true,
         "commonjs": true,
-        "es6": true,
+        "es2022": true,
         "node": true,
         "jest": true
     },
@@ -11,13 +11,11 @@
         "Atomics": "readonly",
         "SharedArrayBuffer": "readonly"
     },
-    "parserOptions": {
-        "ecmaVersion": 2018
-    },
     "rules": {
         "indent": [
             "error",
-            "tab"
+            "tab",
+            {"SwitchCase": 1}
         ],
         "quotes": [
             "error",

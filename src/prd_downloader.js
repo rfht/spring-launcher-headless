@@ -93,7 +93,6 @@ class PrdDownloader extends EventEmitter {
 		this.name = name;
 	}
 
-
 	downloadEngine(engineName) {
 		this.downloadPackage(engineName, ['--filesystem-writepath', springPlatform.writePath, '--download-engine', engineName]);
 	}
@@ -101,7 +100,7 @@ class PrdDownloader extends EventEmitter {
 	downloadGames(gameNames) {
 		const args = ['--filesystem-writepath', springPlatform.writePath];
 		for (const game of gameNames) {
-			args.push(...['--download-game', game])
+			args.push(...['--download-game', game]);
 		}
 
 		this.downloadPackage(gameNames.join(', '), args);
