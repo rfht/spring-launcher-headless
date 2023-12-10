@@ -26,6 +26,10 @@ if (process.platform == 'win32' && !('PRD_SSL_CERT_FILE' in process.env)) {
 	process.env['PRD_SSL_CERT_FILE'] = cacertPath;
 }
 
+// Enable happy eyeballs for IPv6/IPv4 dual stack.
+const net = require('node:net');
+net.setDefaultAutoSelectFamily(true);
+
 const { log } = require('./spring_log');
 // Setup error handling
 require('./error_handling');
