@@ -30,7 +30,7 @@ if (!fs.existsSync(logsDir)) {
 const runId = new Date().toISOString().replace(/[^0-9T]/g, '').substring(0, 15);
 const logPath = path.join(logsDir, `spring-launcher-${runId}.log`);
 
-log.transports.file.resolvePath = () => logPath;
+log.transports.file.resolvePathFn = () => logPath;
 log.transports.file.level = 'info';
 log.transports.file.maxSize = 0;
 

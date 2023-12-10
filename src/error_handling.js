@@ -10,7 +10,7 @@ const { gui } = require('./launcher_gui');
 process.stdout.on('error', () => {});
 process.stderr.on('error', () => {});
 
-log.catchErrors({
+log.errorHandler.startCatching({
 	showDialog: false,
 	onError(err) {
 		// Ignore self-updater errors
