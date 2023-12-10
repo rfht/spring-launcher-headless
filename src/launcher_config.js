@@ -22,7 +22,6 @@ const defaultSetup = {
 	'no_downloads': false,
 	'no_start_script': false,
 	'load_dev_exts': false,
-	'route_prd_to_nextgen': false,
 	// It can be a single string or array of destinations to try in
 	// sequence for reliability in case first one fails. Can be set globally.
 	'log_upload_url': null,
@@ -42,7 +41,6 @@ const defaultSetup = {
 		'maps': [],
 		'engines': [],
 		'resources': [],
-		'nextgen': [],
 	},
 
 	'launch': {

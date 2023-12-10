@@ -30,14 +30,12 @@
       "target": "AppImage",
       "category": "Game",
       "extraFiles": [
-        "bin/butler/linux/*",
         "bin/pr-downloader"
       ]
     },
     "win": {
       "extraFiles": [
         "bin/cacert.pem",
-        "bin/butler/windows/*",
         "bin/pr-downloader.exe",
         "bin/*.dll"
       ]
@@ -67,9 +65,9 @@
     "got": "11.8.6",
     "json-stable-stringify": "^1.0.2",
     "node-7z": "3.0.0",
+    "node-downloader-helper": "^2.1.9",
     "sdfz-demo-parser": "5.10.0",
     "spring-map-parser": "6.1.1",
-    "spring-nextgen-dl": "0.2.3",
     "yargs": "17.7.2"
   },
   "devDependencies": {

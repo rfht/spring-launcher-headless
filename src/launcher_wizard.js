@@ -110,18 +110,7 @@ class Wizard extends EventEmitter {
 				});
 			});
 
-			if (config.route_prd_to_nextgen) {
-				config.downloads.games.forEach((game) => {
-					steps.push({
-						name: 'game',
-						item: game,
-						action: () => {
-							this.isActive = true;
-							springDownloader.downloadGameNextGen(game);
-						}
-					});
-				});
-			} else if (config.downloads.games && config.downloads.games.length > 0) {
+			if (config.downloads.games && config.downloads.games.length > 0) {
 				steps.push({
 					name: 'games',
 					item: config.downloads.games.join(', '),
@@ -139,17 +128,6 @@ class Wizard extends EventEmitter {
 					action: () => {
 						this.isActive = true;
 						springDownloader.downloadMap(map);
-					}
-				});
-			});
-
-			config.downloads.nextgen.forEach((resource) => {
-				steps.push({
-					name: 'nextgen',
-					item: resource,
-					action: () => {
-						this.isActive = true;
-						springDownloader.downloadNextGen(resource);
 					}
 				});
 			});
@@ -277,8 +255,6 @@ class Wizard extends EventEmitter {
 		this.steps = steps;
 		this.asyncSteps = asyncSteps;
 		this.enabled = true;
-
-		this.emit('stepsGenerated', this.steps);
 	}
 
 	setEnabled(enabled) {

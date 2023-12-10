@@ -2,50 +2,37 @@
 
 const EventEmitter = require('events');
 const fs = require('fs');
-const { renameSyncWithRetry } = require('./fs_utils');
-
 const path = require('path');
 
-const { Butler } = require('spring-nextgen-dl');
+const { DownloaderHelper } = require('node-downloader-helper');
 
 const springPlatform = require('./spring_platform');
-const { log, wrapEmitterLogs } = require('./spring_log');
+const { log } = require('./spring_log');
 const Extractor = require('./extractor');
-const { makeParentDir, getTemporaryFileName, removeTemporaryFiles } = require('./fs_utils');
-
+const {
+	makeParentDir,
+	getTemporaryFileName,
+	removeTemporaryFiles,
+	renameSyncWithRetry,
+} = require('./fs_utils');
 
 class HttpDownloader extends EventEmitter {
 	constructor() {
 		super();
 
-		const butler = new Butler(springPlatform.butlerPath, path.join(springPlatform.writePath, 'tmp'));
+		this.__dl = null;
 
-		butler.on('started', () => {
-			this.emit('started', this.name);
+		this.extractor = new Extractor();
+		this.extractor.on('finished', (downloadItem) => {
+			this.emit('finished', downloadItem);
 		});
 
-		butler.on('progress', (current, total) => {
-			this.emit('progress', this.name, current, total);
+		this.extractor.on('failed', (downloadItem, msg) => {
+			this.emit('failed', downloadItem, msg);
 		});
-
-		butler.on('aborted', msg => {
-			this.emit('aborted', this.name, msg);
-		});
-
-		wrapEmitterLogs(butler);
-
-		this.butler = butler;
 
 		try {
 			removeTemporaryFiles();
-			this.extractor = new Extractor();
-			this.extractor.on('finished', downloadItem => {
-				this.emit('finished', downloadItem);
-			});
-
-			this.extractor.on('failed', (downloadItem, msg) => {
-				this.emit('failed', downloadItem, msg);
-			});
 		} catch (error) {
 			// If for some weird permission reason we failed to cleanup downloads, just log it and ignore it
 			// No need to disturb the user with this
@@ -65,55 +52,88 @@ class HttpDownloader extends EventEmitter {
 		}
 
 		const destinationTemp = getTemporaryFileName('download');
+		makeParentDir(destinationTemp);
+
+		const dl = new DownloaderHelper(
+			url.href,
+			path.dirname(destinationTemp),
+			{
+				fileName: path.basename(destinationTemp),
+				override: true,
+				timeout: 10000, // 10 seconds timeout for socket inactivity
+				retry: { maxRetries: 5, delay: 3000 },
+				progressThrottle: 100,
+				headers: { 'User-Agent': 'spring-launcher' },
+			}
+		);
+		this.__dl = dl;
+
+		dl.on('end', (downloadInfo) => {
+			if (downloadInfo.incomplete) {
+				log.error('Download incomplete');
+				this.emit('failed', name, 'Download incomplete');
+				return;
+			}
+
+			log.info('Finished http download');
+
+			makeParentDir(destination);
+
+			if (!resource['extract']) {
+				renameSyncWithRetry(destinationTemp, destination);
+				this.emit('finished', name);
+				return;
+			}
+
+			this.emit(
+				'progress',
+				name,
+				downloadInfo.downloadedSize,
+				downloadInfo.downloadedSize
+			);
+
+			this.extractor.extract(name, url, destinationTemp, destination);
+		});
+
+		let handledErrorOnce = false;
+		const handleError = (error) => {
+			if (handledErrorOnce) return;
+			handledErrorOnce = true;
+
+			log.error(`Download ${name} failed: `, error);
+			if (resource['optional']) {
+				log.warn(
+					`Download ${name} is optional, marking as finished succesfully.`
+				);
+				this.emit('finished', name);
+			} else {
+				this.emit('failed', name, error);
+			}
+		};
+
+		dl.on('error', handleError);
+		dl.on('timeout', () => handleError(new Error('timeout')));
+		dl.on('stop', () => this.emit('aborted', name));
+		dl.on('progress.throttled', (stats) =>
+			this.emit('progress', name, stats.downloaded, stats.total)
+		);
+		dl.on('warning', (err) => log.warn(`Download ${name} warning: ${err}`));
+		dl.on('retry', (attempt, retryOpts, err) => {
+			log.warn(
+				`Retrying ${name} download attempt ${attempt} of ${retryOpts.maxRetries}, error was: ${err.message}`
+			);
+		});
+
 		this.emit('started', name);
-		// FIXME: What's going on here..? () shouldn't be preventing this. from working
-		// Is then the problem?
-		const extractor = this.extractor;
-		this.download(name, 'resource', url, destinationTemp)
-			.then(() => {
-				log.info('Finished http download');
-
-				makeParentDir(destination);
-
-				if (!resource['extract']) {
-					renameSyncWithRetry(destinationTemp, destination);
-					this.emit('finished', name);
-					return;
-				}
-
-				this.emit('progress', name, 100, 100);
-
-				extractor.extract(name, url, destinationTemp, destination);
-			}).catch(reason => {
-				if (fs.existsSync(destinationTemp)) {
-					try {
-						fs.unlinkSync(destinationTemp);
-					} catch (err) {
-						if (fs.existsSync(destinationTemp)) {
-							log.error(`Failed to cleanup stale download: ${destinationTemp}`);
-						}
-					}
-				}
-				log.info('failed', `Download failed: ${reason}`);
-				if (resource['optional']) {
-					log.warn(reason);
-					log.warn('Download is optional, marking as finished succesfully.');
-					this.emit('finished', name);
-				} else {
-					log.error(reason);
-					this.emit('failed', name, reason);
-				}
-			});
-	}
-
-	download(name, type, url, downloadPath) {
-		this.name = name;
-		this.type = type;
-		return this.butler.download(url.href, downloadPath);
+		dl.start().catch(handleError);
 	}
 
 	stopDownload() {
-		this.butler.stopDownload();
+		if (this.__dl == null) {
+			log.error('No current download. Nothing to stop');
+			return;
+		}
+		this.__dl.stop();
 	}
 }
 

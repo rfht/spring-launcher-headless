@@ -3,7 +3,6 @@
 const log = require('electron-log');
 
 const { bridge } = require('../spring_api');
-const { config } = require('../launcher_config');
 const springDownloader = require('../spring_downloader');
 const { wizard } = require('../launcher_wizard');
 
@@ -36,11 +35,7 @@ function DownloadFront() {
 
 	isDownloading = true;
 	if (type === 'game') {
-		if (config.route_prd_to_nextgen) {
-			springDownloader.downloadGameNextGen(name);
-		} else {
-			springDownloader.downloadGames([name]);
-		}
+		springDownloader.downloadGames([name]);
 	} else if (type === 'map') {
 		springDownloader.downloadMap(name);
 	} else if (type === 'engine') {
