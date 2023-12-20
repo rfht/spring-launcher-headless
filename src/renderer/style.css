@@ -5,10 +5,10 @@ body {
 }
 
 #main-content {
-  padding-top: 20px;
-  padding-right: 30px;
-  padding-bottom: 0px;
-  padding-left: 30px;
+  padding-top: 10px;
+  padding-right: 40px;
+  padding-bottom: 10px;
+  padding-left: 40px;
 
   background-image: url(./images/background.png);
   /* background-attachment: fixed; */
@@ -18,18 +18,37 @@ body {
   height: 388px;
 }
 
-.header { grid-area: header; }
-.config { grid-area: config; }
-.control-buttons { grid-area: controls; }
+.header {
+  grid-area: header;
+}
+
+.config {
+  grid-area: config;
+}
+
+.control-buttons {
+  grid-area: controls;
+}
+
 .status {
   grid-area: status;
   align-self: end;
 }
-.mainbtn { grid-area: mainbtn; }
+
+.mainbtn {
+  grid-area: mainbtn;
+}
+
 #lbl-check-for-updates {
   grid-area: checkupdates;
   align-self: end;
+  top: 4px;
 }
+
+#cb-check-for-updates {
+  margin-right: 6px;
+}
+
 .progress-area {
   grid-area: prog;
   align-self: end;
@@ -44,9 +63,9 @@ body {
     'prog prog mainbtn'
     'prog prog checkupdates';
   grid-template-columns: 1fr 4fr 1fr;
-  grid-template-rows: 10fr 1fr 1fr 1fr 1fr 5fr;
+  grid-template-rows: 50fr 1fr 1fr 1fr 1fr 1fr;
   column-gap: 30px;
-  row-gap: 20px;
+  row-gap: 15px;
 }
 
 body::-webkit-scrollbar {
@@ -55,7 +74,8 @@ body::-webkit-scrollbar {
 
 #title {
   text-shadow: 2px 2px 5px #000;
-  font-size: 220%;
+  font-size: 200%;
+  padding-top: 18px;
 }
 
 .button {
@@ -63,13 +83,13 @@ body::-webkit-scrollbar {
 }
 
 #btn-progress {
-  animation: radial-pulse 2s infinite;
-  min-height: 100px;
-  max-height: 100px;
-  min-width: 150px;
-  max-width: 150px;
+  min-height: 80px;
+  max-height: 80px;
+  min-width: 135px;
+  max-width: 135px;
   /* font-size: 100%; */
   white-space: normal;
+  top: -18px;
 }
 
 #btn-progress:disabled {
@@ -110,13 +130,25 @@ p.warn {
   display: block;
 }
 
+.status:hover:has(label.error) {
+  z-index: 1000;
+  background-color: rgba(0, 0, 0, 0.4);
+  -webkit-line-clamp: unset;
+  backdrop-filter: blur(10px);
+  word-break: normal;
+  border-radius: 6px;
+  padding: 5px 8px 8px 8px;
+  margin-bottom: -13px;
+}
+
 .status {
   overflow: hidden;
   display: -webkit-box;
-  -webkit-line-clamp: 2;
+  -webkit-line-clamp: 1;
   -webkit-box-orient: vertical;
   word-break: break-all;
   line-height: 1.0;
+  margin-bottom: 0;
 }
 
 .progress-label {
@@ -126,17 +158,6 @@ p.warn {
 .progress {
   box-shadow: 2px 2px 5px #000;
 }
-
-/* Add radial Pulse ability */
-@keyframes radial-pulse {
-  0% {
-    box-shadow: 0 0 0 0px rgba(0, 0, 0, 1);
-  }
-  100% {
-    box-shadow: 0 0 0 10px rgba(0, 0, 0, 0);
-  }
-}
-
 
 /**
  *   MAKE ELECTRON APP FEEL MORE NATIVE
@@ -148,15 +169,18 @@ p.warn {
  *   * Prevent text selection
  */
 
-
-*, *::after, *::before {
-	-webkit-user-select: none;
-	-webkit-user-drag: none;
-	-webkit-app-region: no-drag;
-	cursor: default;
+*,
+*::after,
+*::before {
+  user-select: none;
+  -webkit-user-drag: none;
+  -webkit-app-region: no-drag;
+  cursor: default;
 }
 
-/* But enable text selection for the log */
-#note-content > p {
-	-webkit-user-select: text;
+/* But enable text selection for the log, and error messages */
+#note-content>p,
+#lbl-progress-full.error,
+#lbl-progress-full.error * {
+  user-select: text;
 }

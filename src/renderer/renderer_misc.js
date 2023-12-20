@@ -18,3 +18,8 @@ module.exports = {
 		lblMainTitle.innerHTML = title;
 	}
 };
+
+// Prevent all buttons from staying focused.
+for (const btn of document.querySelectorAll('button')) {
+	btn.addEventListener('focus', () => btn.blur());
+}

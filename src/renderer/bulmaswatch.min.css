@@ -1,6 +1,32 @@
 /*! bulmaswatch v0.7.1 | MIT License */
 /*! bulma.io v0.7.1 | MIT License | github.com/jgthms/bulma */
- @import url(https://fonts.googleapis.com/css?family=Lato:400,700,400italic);
+/*! Modified by icexuick, p2004a */
+
+/* lato-regular - latin */
+@font-face {
+    font-display: swap;
+    font-family: 'Lato';
+    font-style: normal;
+    font-weight: 400;
+    src: url('fonts/lato-v24-latin-regular.woff2') format('woff2');
+}
+/* lato-italic - latin */
+@font-face {
+    font-display: swap;
+    font-family: 'Lato';
+    font-style: italic;
+    font-weight: 400;
+    src: url('fonts/lato-v24-latin-italic.woff2') format('woff2');
+}
+/* lato-700 - latin */
+@font-face {
+    font-display: swap;
+    font-family: 'Lato';
+    font-style: normal;
+    font-weight: 700;
+    src: url('fonts/lato-v24-latin-700.woff2') format('woff2');
+}
+
 @keyframes spinAround {
     0% {
         transform:rotate(0deg)
@@ -2332,13 +2358,13 @@ a.box:active {
 }
 .input.is-small,.textarea.is-small {
     border-radius:3px;
-    font-size:.85em
+    font-size:.75em
 }
 .input.is-medium,.textarea.is-medium {
-    font-size:1.25rem
+    font-size:1.1rem
 }
 .input.is-large,.textarea.is-large {
-    font-size:1.5rem
+    font-size:1.3rem
 }
 .input.is-fullwidth,.textarea.is-fullwidth {
     display:block;
@@ -5401,7 +5427,7 @@ body.has-navbar-fixed-bottom,html.has-navbar-fixed-bottom {
     background-color:#282f2f;
     border-radius:.4em .4em 0 0;
     color:#f2f2f2;
-    font-size:1.25em;
+    font-size:1.15em;
     line-height:1.25;
     padding:.5em .75em
 }
