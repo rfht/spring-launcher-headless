@@ -79,10 +79,10 @@ app.prependListener('ready', () => {
 					mainWindow.show();
 					//menuItem.label = "Hide";
 				}
-			}
+			},
 		},
 		// TODO: Settings dialog for user config
-		{ role: 'quit' }
+		{ role: 'quit' },
 	];
 	if (process.platform === 'linux') {
 		// template.unshift([{label: 'Spring-Launcher'}]);
@@ -99,14 +99,17 @@ app.prependListener('ready', () => {
 			return /^[\x20-\x7F]*$/.test(str);
 		}
 
-		if (process.platform == 'win32' &&
+		if (
+			process.platform == 'win32' &&
 			!isPrintableASCII(writePath) &&
-			!config.disable_win_ascii_install_path_check) {
+			!config.disable_win_ascii_install_path_check
+		) {
 			dialog.showMessageBoxSync(mainWindow, {
 				type: 'error',
 				title: 'Non-English alphabet install directory',
 				buttons: ['OK'],
-				message: 'Game installation path contains non-English alphabet characters.',
+				message:
+					'Game installation path contains non-English alphabet characters.',
 				detail:
 					`Current installation location "${writePath}" constains non-English alphabet letters (non-ASCII characters). ` +
 					'Examples of such problematic characters are: ą 자 ö ł β. ' +
@@ -119,7 +122,9 @@ app.prependListener('ready', () => {
 
 		gui.send('all-configs', config.getAvailableConfigs());
 
-		const { generateAndBroadcastWizard } = require('./launcher_wizard_util');
+		const {
+			generateAndBroadcastWizard,
+		} = require('./launcher_wizard_util');
 		generateAndBroadcastWizard();
 
 		if (config.no_downloads && config.auto_start) {
@@ -140,6 +145,29 @@ app.prependListener('ready', () => {
 			mainWindow.setMinimumSize(width, height);
 			mainWindow.setSize(width, height);
 		}, 0);
+	});
+
+	const { log } = require('./spring_log');
+
+	// Prevent all navigation to any pages in launcher.
+	mainWindow.webContents.on('will-frame-navigate', (event) => {
+		event.preventDefault();
+		log.error(`Prevented navigation to: ${event.url}`);
+	});
+
+	// New window should be opened in external browser.
+	mainWindow.webContents.setWindowOpenHandler(({ url }) => {
+		try {
+			const u = new URL(url);
+			if (u.protocol !== 'https:') {
+				throw new Error(`Invalid protocol: ${u.protocol}`);
+			}
+			log.info(`Opening external link: ${u}`);
+			require('electron').shell.openExternal(u.href);
+		} catch (e) {
+			log.error(`Failed to open external link '${url}': ${e}`);
+		}
+		return { action: 'deny' };
 	});
 });
 

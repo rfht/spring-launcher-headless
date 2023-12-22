@@ -19,7 +19,7 @@ module.exports = {
 	}
 };
 
-const { setMainTitle } = require('./renderer_misc');
+const { setMainTitle, updateLinks } = require('./renderer_misc');
 const { updateWizard } = require('./renderer_wizard');
 
 ipcRenderer.on('config', (e, c) => {
@@ -27,6 +27,7 @@ ipcRenderer.on('config', (e, c) => {
 
 	document.title = config.title;
 	setMainTitle(config.title);
+	updateLinks(config.links || []);
 
 	updateWizard(config);
 

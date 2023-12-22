@@ -54,6 +54,27 @@ body {
   align-self: end;
 }
 
+#footerLinks {
+  grid-area: links;
+  text-align: right;
+  font-size: 11px;
+  margin-right: -23px;
+  text-shadow: 1px 1px 1px rgba(0, 0, 0, 1),
+}
+
+#footerLinks a {
+  color: white;
+  opacity: 0.7;
+  display: inline-block;
+  margin-left: 7px;
+  margin-top: 8px;
+}
+
+#footerLinks a:hover {
+  opacity: 1;
+  transition: opacity 0.1s;
+}
+
 .grid-container {
   display: grid;
   grid-template-areas:
@@ -61,7 +82,8 @@ body {
     'controls controls mainbtn'
     'status status mainbtn'
     'prog prog mainbtn'
-    'prog prog checkupdates';
+    'prog prog checkupdates'
+    'links links links';
   grid-template-columns: 1fr 4fr 1fr;
   grid-template-rows: 50fr 1fr 1fr 1fr 1fr 1fr;
   column-gap: 30px;
@@ -89,7 +111,7 @@ body::-webkit-scrollbar {
   max-width: 135px;
   /* font-size: 100%; */
   white-space: normal;
-  top: -18px;
+  top: -10px;
 }
 
 #btn-progress:disabled {

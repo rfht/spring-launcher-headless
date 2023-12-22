@@ -32,6 +32,10 @@ const defaultSetup = {
 	'error_suffix': null,
 	'disable_win_ascii_install_path_check': false,
 
+	// Orderer list of links to put in the footer of the launcher, e.g.
+	//[{ "title": "Google", "url": "https://google.com" }]
+	'links': undefined,
+
 	// Default values for environment variables to be set for all the executed
 	// child processes like pr-downloader.
 	'env_variables': {},
@@ -143,10 +147,9 @@ function applyDefaults(conf) {
 		const defaultSetupCopy = JSON.parse(JSON.stringify(defaultSetup));
 		const setup = mergeDeep(defaultSetupCopy, conf.setups[i]);
 		setup.title = conf.title;
-		// It needs to be accesible from rendering process.
-		if (!setup.error_suffix) {
-			setup.error_suffix = conf.error_suffix;
-		}
+		// Properties that need to be accesible from rendering process.
+		if (!setup.error_suffix) setup.error_suffix = conf.error_suffix;
+		if (!setup.links) setup.links = conf.links;
 		conf.setups[i] = setup;
 	}
 	return conf;

@@ -1,6 +1,6 @@
 'use strict';
 
-const { ipcRenderer, shell } = require('electron');
+const { ipcRenderer } = require('electron');
 
 const { setConfigEnabled } = require('./renderer_config');
 
@@ -93,12 +93,9 @@ function stepError(message) {
 
 	lblFull.addEventListener('click', event => {
 		if (event.target.tagName.toLowerCase() === 'a') {
-			event.preventDefault();
-
 			if (event.target.href == 'special:log-upload-ask') {
+				event.preventDefault();
 				ipcRenderer.send('log-upload-ask');
-			} else {
-				shell.openExternal(event.target.href);
 			}
 		}
 	});
