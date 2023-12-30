@@ -155,6 +155,10 @@ app.prependListener('ready', () => {
 		log.error(`Prevented navigation to: ${event.url}`);
 	});
 
+	mainWindow.webContents.on('console-message', (event, level, message) => {
+		log.info('from renderer:', message);
+	});
+
 	// New window should be opened in external browser.
 	mainWindow.webContents.setWindowOpenHandler(({ url }) => {
 		try {
