@@ -66,12 +66,21 @@ function upload() {
 	const lastLogsToUpload = 7;
 	const logFiles = fs.readdirSync(logDir).sort().slice(-lastLogsToUpload).map(f => path.join(logDir, f));
 
+	// Pick the ClientGameState files from the last week.
+	const lastWeek = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+	const clientGameStateFiles = fs.readdirSync(springPlatform.writePath)
+		.filter(f => f.startsWith('ClientGameState-'))
+		.map(f => path.join(springPlatform.writePath, f))
+		.filter(f => fs.statSync(f).mtime > lastWeek);
+
+	const filesToUpload = [].concat(logFiles, clientGameStateFiles);
+
 	const archiveTime = new Date().toISOString().replace(/[^0-9T]/g, '').substring(0, 13);
 	const archiveRandom = crypto.randomBytes(6).toString('base64url');
 	const archiveFile = `logs-${archiveTime}-${archiveRandom}.zip`;
 	const archivePath = path.join(springPlatform.writePath, archiveFile);
 
-	const stream7z = sevenZ.add(archivePath, logFiles, {
+	const stream7z = sevenZ.add(archivePath, filesToUpload, {
 		$bin: path7za,
 	});
 
