@@ -95,7 +95,7 @@ app.prependListener('ready', () => {
 		}
 
 		mainWindow.show();
-		//mainWindow.resizable = false; // Disable resizing of the launcher window, this does not get passed to spring.exe
+		mainWindow.resizable = false; // Disable resizing of the launcher window, this does not get passed to spring.exe
 
 		function isPrintableASCII(str) {
 			return /^[\x20-\x7F]*$/.test(str);
@@ -156,7 +156,6 @@ app.prependListener('ready', () => {
 	// after it got rendered once fixes it.
 	mainWindow.once('show', () => {
 		setTimeout(() => {
-			mainWindow.setMinimumSize(width, height);
 			mainWindow.setSize(width, height);
 		}, 0);
 	});
