@@ -29,6 +29,12 @@ btnShowLog.addEventListener('click', (event) => {
 		cl.add('open');
 		// We have to call setMinimumSize before .setSize due to Electron bug
 		// https://github.com/electron/electron/issues/15560
+		//
+		// We also first expand the window once 1 pixel more, and then set the correct
+		// size because under X11 the first window expansion for some reason is getting
+		// rendering to stuck in some cases.
+		mainWindow.setMinimumSize(800, expandedHeight+1);
+		mainWindow.setSize(800, expandedHeight+1);
 		mainWindow.setMinimumSize(800, expandedHeight);
 		mainWindow.setSize(800, expandedHeight);
 	}
