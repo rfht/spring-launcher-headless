@@ -160,6 +160,12 @@ class Wizard extends EventEmitter {
 							updater.on('update-not-available', () => resolveOnce({updateAvailable: false, error: null}));
 							updater.on('error', error => resolveOnce({updateAvailable: null, error}));
 							updater.checkForUpdates()
+								.then((result) => {
+									if (result == null) {
+										log.warn('Check for updates was skipped by electron-updater');
+										resolveOnce({updateAvailable: false, error: null});
+									}
+								})
 								.catch(error=> resolveOnce({updateAvailable: null, error}));
 						});
 					}
