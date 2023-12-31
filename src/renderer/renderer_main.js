@@ -8,4 +8,5 @@ window.onload = function () {
 	require('./renderer_log');
 	require('./renderer_misc');
 	require('./renderer_wizard');
+	require('electron').ipcRenderer.send('renderer-ready');
 };

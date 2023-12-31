@@ -1,8 +1,7 @@
 'use strict';
 
 const electron = require('electron');
-const { app, BrowserWindow, Menu, Tray, dialog } = electron;
-const isDev = !require('electron').app.isPackaged;
+const { app, BrowserWindow, Menu, Tray, dialog, ipcMain } = electron;
 const { writePath } = require('./spring_platform');
 const { config } = require('./launcher_config');
 
@@ -50,9 +49,6 @@ app.prependListener('ready', () => {
 	require('@electron/remote/main').enable(mainWindow.webContents);
 
 	mainWindow.loadFile(`${__dirname}/renderer/index.html`);
-	if (isDev) {
-		// mainWindow.webContents.openDevTools();
-	}
 
 	mainWindow.on('closed', () => {
 		mainWindow = null;
@@ -91,7 +87,13 @@ app.prependListener('ready', () => {
 	tray.setToolTip(config.title);
 	tray.setContextMenu(Menu.buildFromTemplate(template));
 
-	mainWindow.once('ready-to-show', () => {
+	let rendererReady = false;
+	let readyToShow = false;
+	function showWindow() {
+		if (!rendererReady || !readyToShow) {
+			return;
+		}
+
 		mainWindow.show();
 		//mainWindow.resizable = false; // Disable resizing of the launcher window, this does not get passed to spring.exe
 
@@ -135,6 +137,18 @@ app.prependListener('ready', () => {
 		} else {
 			gui.send('wizard-stopped');
 		}
+
+		// mainWindow.webContents.openDevTools();
+	}
+
+	ipcMain.on('renderer-ready', () => {
+		rendererReady = true;
+		showWindow();
+	});
+
+	mainWindow.once('ready-to-show', () => {
+		readyToShow = true;
+		showWindow();
 	});
 
 	// Workaround for linux/wayland on which electron has a problem with
