@@ -50,7 +50,12 @@ btnUploadLog.addEventListener('click', () => {
 ipcRenderer.on('log', (e, msg) => {
 	const para = document.createElement('p');
 	const text = format.apply(util, msg.data);
-	const node = document.createTextNode(`[${msg.date} ${msg.level}] ${text}`);
+	const t = msg.date;
+	const timeStr = t.getHours().toString().padStart(2, '0') + ':' +
+		t.getMinutes().toString().padStart(2, '0') + ':' +
+		t.getSeconds().toString().padStart(2, '0') + '.' +
+		(t.getMilliseconds() / 10 | 0).toString().padStart(2, '0');
+	const node = document.createTextNode(`[${timeStr} ${msg.level}] ${text}`);
 	para.appendChild(node);
 	para.classList.add(msg.level);
 	logContent.appendChild(para);
