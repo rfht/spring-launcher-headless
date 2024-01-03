@@ -22,7 +22,8 @@ body {
   background-position: center;
   background-repeat: no-repeat;
   background-size: cover;
-  height: var(--window-height);
+  height: calc(min(100vh, var(--window-height)));
+  overflow: hidden;
 }
 
 .header {
@@ -148,7 +149,7 @@ p.warn {
   width: 100%;
   padding-right: 10px;
   padding-bottom: 0px;
-  height: var(--infobox-height);
+  height: calc(min(100vh - var(--window-height), var(--infobox-height)));
 }
 
 .infobox p {
