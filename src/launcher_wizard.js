@@ -215,18 +215,14 @@ class Wizard extends EventEmitter {
 						clearTimeout(timeoutId);
 						if (error) {
 							log.error(`Failed to check for launcher updates. Error: ${error}, ignoring`);
-							wizard.nextStep();
 						} else if (updateAvailable) {
-							const update = await showUpdateDialog(mainWindow, updateInfo);
-							if (update) {
+							if (config.disable_launcher_update_dialog || await showUpdateDialog(mainWindow, updateInfo)) {
 								performUpdate();
-							} else {
-								log.info('User skipped launcher update');
-								wizard.nextStep();
+								return;
 							}
-						} else {
-							wizard.nextStep();
+							log.info('User skipped launcher update');
 						}
+						wizard.nextStep();
 					}
 				});
 			}

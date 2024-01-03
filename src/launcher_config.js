@@ -36,6 +36,10 @@ const defaultSetup = {
 	//[{ "title": "Google", "url": "https://google.com" }]
 	'links': undefined,
 
+	// Controls whatever the launcher update dialog is shown when new version
+	// of launcher is available or the update is just started right away.
+	'disable_launcher_update_dialog': false,
+
 	// Default values for environment variables to be set for all the executed
 	// child processes like pr-downloader.
 	'env_variables': {},
