@@ -1,0 +1,55 @@
+*,
+*::after,
+*::before {
+  user-select: none;
+  -webkit-user-drag: none;
+  -webkit-app-region: no-drag;
+  cursor: default;
+  box-sizing: border-box;
+}
+
+body, html {
+  height: 100%;
+}
+
+body::-webkit-scrollbar {
+  display: none;
+}
+
+#dialog-container {
+  display: flex;
+  flex-direction: column;
+  flex-wrap: nowrap;
+  height: 100%;
+  gap: 15px;
+  padding: 20px;
+}
+
+#dialog-release-notes {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  overflow-y: hidden;
+}
+
+#dialog-release-notes-text {
+  background-color: white;
+  user-select: text;
+  padding: 15px;
+  overflow-y: auto;
+  margin-top: 5px;
+  border-radius: 3px;
+}
+
+#dialog-buttons {
+  text-align: right;
+}
+
+#dialog-buttons button {
+  margin-left: 10px;
+}
+
+h3 {
+  font-weight: bold;
+  font-size: 1.17em;
+}

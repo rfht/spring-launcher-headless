@@ -15,6 +15,8 @@ const { handleConfigUpdate } = require('./launcher_config_update');
 const fs = require('fs');
 const got = require('got');
 
+const { showUpdateDialog } = require('./update_dialog');
+
 const path = require('path');
 const springPlatform = require('./spring_platform');
 
@@ -139,9 +141,9 @@ class Wizard extends EventEmitter {
 			// Queue asynchronous check for launcher update.
 			const isDev = !require('electron').app.isPackaged;
 			if (isDev) {
-				console.log('Development version: no self-update required');
+				log.info('Development version: no self-update required');
 			} else if (argv.disableLauncherUpdate) {
-				console.log('Launcher application update disabled on command line');
+				log.info('Launcher application update disabled on command line');
 			} else {
 				const asyncLauncherUpdateCheck = {
 					promise: null,
@@ -156,7 +158,12 @@ class Wizard extends EventEmitter {
 									resolve(result);
 								}
 							};
-							updater.on('update-available', () => resolveOnce({updateAvailable: true, error: null}));
+
+							updater.on('update-available', (updateInfo) => resolveOnce({
+								updateAvailable: true,
+								error: null,
+								updateInfo,
+							}));
 							updater.on('update-not-available', () => resolveOnce({updateAvailable: false, error: null}));
 							updater.on('error', error => resolveOnce({updateAvailable: null, error}));
 							updater.checkForUpdates()
@@ -176,7 +183,7 @@ class Wizard extends EventEmitter {
 					gui.send('dl-started', 'autoupdate');
 
 					updater.on('download-progress', (d) => {
-						console.info(`Self-download progress: ${d.percent}`);
+						log.info(`Self-download progress: ${d.percent}`);
 						gui.send('dl-progress', 'autoUpdate', d.percent, 100);
 					});
 					updater.on('update-downloaded', () => {
@@ -194,7 +201,7 @@ class Wizard extends EventEmitter {
 
 				steps.push({
 					name: 'launcher_update',
-					action: () => {
+					action: async () => {
 						log.info('Checking for launcher update');
 
 						let timeoutId;
@@ -204,18 +211,22 @@ class Wizard extends EventEmitter {
 							}, 5000);
 						});
 
-						Promise.race([asyncLauncherUpdateCheck.promise, checkTimeout])
-							.then(({updateAvailable, error}) => {
-								clearTimeout(timeoutId);
-								if (error) {
-									log.error(`Failed to check for launcher updates. Error: ${error}, ignoring`);
-									wizard.nextStep();
-								} else if (updateAvailable) {
-									performUpdate();
-								} else {
-									wizard.nextStep();
-								}
-							});
+						const {updateAvailable, error, updateInfo} = await Promise.race([asyncLauncherUpdateCheck.promise, checkTimeout]);
+						clearTimeout(timeoutId);
+						if (error) {
+							log.error(`Failed to check for launcher updates. Error: ${error}, ignoring`);
+							wizard.nextStep();
+						} else if (updateAvailable) {
+							const update = await showUpdateDialog(mainWindow, updateInfo);
+							if (update) {
+								performUpdate();
+							} else {
+								log.info('User skipped launcher update');
+								wizard.nextStep();
+							}
+						} else {
+							wizard.nextStep();
+						}
 					}
 				});
 			}
