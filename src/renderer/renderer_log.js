@@ -4,6 +4,8 @@ const { ipcRenderer } = require('electron');
 
 const { getCurrentWindow } = require('@electron/remote');
 
+const dimensions = require('./dimensions');
+
 const mainWindow = getCurrentWindow();
 
 const { format } = require('util');
@@ -17,14 +19,15 @@ btnShowLog.addEventListener('click', (event) => {
 	event.preventDefault();
 
 	const cl = logContent.classList;
-	const baseHeight = process.platform === 'win32' ? 418 : 380 + 8;
-	const expandedHeight = baseHeight + 362;
+	const windowHeight = dimensions.osWindowHeight;
+	const windowWidth = dimensions.windowWidth;
+	const expandedHeight = dimensions.osWindowHeight + dimensions.infoboxHeight;
 	if (cl.contains('open')) {
 		cl.remove('open');
 		// We have to call setMinimumSize before .setSize due to Electron bug
 		// https://github.com/electron/electron/issues/15560
-		mainWindow.setMinimumSize(800, baseHeight);
-		mainWindow.setSize(800, baseHeight);
+		mainWindow.setMinimumSize(windowWidth, windowHeight);
+		mainWindow.setSize(windowWidth, windowHeight);
 	} else {
 		cl.add('open');
 		// We have to call setMinimumSize before .setSize due to Electron bug
@@ -33,10 +36,10 @@ btnShowLog.addEventListener('click', (event) => {
 		// We also first expand the window once 1 pixel more, and then set the correct
 		// size because under X11 the first window expansion for some reason is getting
 		// rendering to stuck in some cases.
-		mainWindow.setMinimumSize(800, expandedHeight+1);
-		mainWindow.setSize(800, expandedHeight+1);
-		mainWindow.setMinimumSize(800, expandedHeight);
-		mainWindow.setSize(800, expandedHeight);
+		mainWindow.setMinimumSize(windowWidth, expandedHeight+1);
+		mainWindow.setSize(windowWidth, expandedHeight+1);
+		mainWindow.setMinimumSize(windowWidth, expandedHeight);
+		mainWindow.setSize(windowWidth, expandedHeight);
 	}
 });
 

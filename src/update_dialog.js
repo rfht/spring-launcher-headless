@@ -14,7 +14,7 @@ function showUpdateDialog(parentWindow, updateInfo) {
 	const { promise, resolve } = Promise.withResolvers();
 
 	// If there are no release notes, we can make the window smaller.
-	let dimensions = updateInfo.releaseNotes ? {
+	const dimensions = updateInfo.releaseNotes ? {
 		height: 600,
 		minHeight: 270,
 		width: 800,
@@ -22,11 +22,15 @@ function showUpdateDialog(parentWindow, updateInfo) {
 		resizable: true,
 	} : {
 		height: 210,
-		minHeight: 210,
 		width: 560,
-		minWidth: 560,
 		resizable: false,
 	};
+
+	// Adjustment for Windows to make sure that height is rought the same across
+	// the operating systems.
+	if (process.platform == 'win32') {
+		dimensions.height += 23;
+	}
 
 	const win = new BrowserWindow({
 		parent: parentWindow,

@@ -1,3 +1,10 @@
+:root {
+  /* Those variables are set in renderer_misc.js. */
+  --window-height: 0;
+  --window-width: 0;
+  --infobox-height: 0;
+}
+
 body {
   text-shadow: 1px 1px 0px #000;
   position: relative;
@@ -15,7 +22,7 @@ body {
   background-position: center;
   background-repeat: no-repeat;
   background-size: cover;
-  height: 388px;
+  height: var(--window-height);
 }
 
 .header {
@@ -141,7 +148,7 @@ p.warn {
   width: 100%;
   padding-right: 10px;
   padding-bottom: 0px;
-  height: 362px;
+  height: var(--infobox-height);
 }
 
 .infobox p {

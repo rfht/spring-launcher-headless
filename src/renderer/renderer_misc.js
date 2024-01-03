@@ -39,3 +39,12 @@ module.exports = {
 for (const btn of document.querySelectorAll('button')) {
 	btn.addEventListener('focus', () => btn.blur());
 }
+
+// Update the global css variables
+{
+	const dimensions = require('./dimensions');
+	const root = document.documentElement;
+	root.style.setProperty('--window-height', `${dimensions.windowHeight}px`);
+	root.style.setProperty('--window-width', `${dimensions.windowWidth}px`);
+	root.style.setProperty('--infobox-height', `${dimensions.infoboxHeight}px`);
+}

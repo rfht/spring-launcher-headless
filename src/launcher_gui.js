@@ -4,6 +4,7 @@ const electron = require('electron');
 const { app, BrowserWindow, Menu, Tray, dialog, ipcMain } = electron;
 const { writePath } = require('./spring_platform');
 const { config } = require('./launcher_config');
+const dimensions = require('./renderer/dimensions');
 
 let mainWindow;
 let tray;
@@ -24,15 +25,18 @@ app.prependListener('ready', () => {
 
 	const display = electron.screen.getPrimaryDisplay();
 	const sWidth = display.workAreaSize.width;
-	const width = 800;
-	const height = process.platform === 'win32' ? 418 : 380 + 8;
+
+	// Must keep in sync with root variables in renderer/style.css!
+	const winDimensions = {
+		width: dimensions.windowWidth,
+		height: dimensions.osWindowHeight,
+	};
 
 	let windowOpts = {
-		x: (sWidth - width) / 2,
-		// y: (sHeight - height) / 2,
+		x: (sWidth - winDimensions.width) / 2,
+		// y: (sHeight - winDimensions.height) / 2,
 		y: 100,
-		width: width,
-		height: height,
+		...winDimensions,
 		show: false,
 		icon: `${__dirname}/renderer/spring-icon.png`,
 		webPreferences: {
@@ -156,7 +160,7 @@ app.prependListener('ready', () => {
 	// after it got rendered once fixes it.
 	mainWindow.once('show', () => {
 		setTimeout(() => {
-			mainWindow.setSize(width, height);
+			mainWindow.setSize(winDimensions.width, winDimensions.height);
 		}, 0);
 	});
 
