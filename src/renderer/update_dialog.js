@@ -7,7 +7,9 @@ window.addEventListener('load', async () => {
 	const updateInfo = await ipcRenderer.invoke('get-update-info');
 
 	document.getElementById('new-version').textContent = updateInfo.version;
-	document.getElementById('new-version-date').textContent = new Date(updateInfo.releaseDate).toDateString();
+	const dateStr = new Date(updateInfo.releaseDate)
+		.toLocaleString('en-US', {month: 'long', year: 'numeric', day: 'numeric'});
+	document.getElementById('new-version-date').textContent = dateStr;
 
 	if (updateInfo.releaseNotes) {
 		const md = document.getElementById('markdown-block-template').content.cloneNode(true);
