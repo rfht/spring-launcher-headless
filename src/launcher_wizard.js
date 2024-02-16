@@ -1,9 +1,7 @@
 'use strict';
 
 const EventEmitter = require('events');
-const { app } = require('electron');
 
-const log = require('electron-log');
 const argv = require('./launcher_args');
 
 const { config } = require('./launcher_config');
@@ -19,14 +17,6 @@ const { showUpdateDialog } = require('./update_dialog');
 
 const path = require('path');
 const springPlatform = require('./spring_platform');
-
-let mainWindow;
-app.on('ready', () => {
-	if (!gui) {
-		return;
-	}
-	mainWindow = gui.getMainWindow();
-});
 
 class Wizard extends EventEmitter {
 	constructor() {

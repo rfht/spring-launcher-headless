@@ -1,38 +1,9 @@
 'use strict';
 
-const { app, ipcMain } = require('electron');
-
-require('@electron/remote/main').initialize();
-
-const settings = require('electron-settings');
-
-const isFirstInstance = app.requestSingleInstanceLock();
-if (!isFirstInstance) {
-	app.quit();
-	return;
-}
-
-// This is a hacky temporary workaround for bug in pr-downloader:
-// https://github.com/beyond-all-reason/pr-downloader/issues/48
-// Once it's resolved, the commit that added this piece of code
-// can be fully reverted.
-if (process.platform == 'win32' && !('PRD_SSL_CERT_FILE' in process.env)) {
-	const path = require('path');
-	const fs = require('fs');
-	let cacertPath = path.resolve(`${__dirname}/../bin/cacert.pem`);
-	if (!fs.existsSync(cacertPath)) {
-		cacertPath = path.resolve(`${process.resourcesPath}/../bin/cacert.pem`);
-	}
-	process.env['PRD_SSL_CERT_FILE'] = cacertPath;
-}
-
 // Enable happy eyeballs for IPv6/IPv4 dual stack.
 const net = require('node:net');
 net.setDefaultAutoSelectFamily(true);
 
-const { log } = require('./spring_log');
-// Setup error handling
-require('./error_handling');
 const { config } = require('./launcher_config');
 const { gui } = require('./launcher_gui');
 require('./worker/window');
@@ -44,7 +15,6 @@ const { generateAndBroadcastWizard } = require('./launcher_wizard_util');
 require('./spring_api');
 const { launcher } = require('./engine_launcher');
 const { writePath } = require('./spring_platform');
-const log_uploader = require('./log_uploader');
 const file_opener = require('./file_opener');
 
 launcher.on('stdout', (text) => {
