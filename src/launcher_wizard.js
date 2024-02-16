@@ -51,7 +51,7 @@ class Wizard extends EventEmitter {
 				const configFetchAction = {
 					name: 'config update',
 					action: () => {
-						log.info(`Checking for config update from: ${config.config_url}...`);
+						console.log("Checking for config update from: %s...", config.config_url);
 						asyncConfigFetch.promise.then(({newConfig, error}) => {
 							if (error) {
 								if (error.code == 'ERR_CANCELED') {

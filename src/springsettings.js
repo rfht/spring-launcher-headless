@@ -6,7 +6,6 @@ const { renameSyncWithRetry } = require('./fs_utils');
 const os = require('os');
 
 const { writePath } = require('./spring_platform');
-const { log } = require('./spring_log');
 const { config } = require('./launcher_config');
 
 class Springsettings extends EventEmitter {
@@ -121,14 +120,14 @@ class Springsettings extends EventEmitter {
 		try {
 			backupSettings = this.#readSettings(backupSettingsPath);
 		} catch (err) {
-			log.warn(`Failed to read backup settings file: ${err}, falling back to empty config.`);
+			console.log("Failed to read backup settings file: %s, falling back to empty config.", err);
 			backupSettings = new Map();
 		}
 		let settings = null;
 		try {
 			settings = this.#readSettings(springsettingsPath);
 		} catch (err) {
-			log.warn(`Failed to read setting file: ${err}, will use backup config.`);
+			console.log("Failed to read setting file: %s, will use backup config.", err);
 			settings = backupSettings;
 		}
 		// We verify and write before applying overrides because often engine
@@ -136,7 +135,7 @@ class Springsettings extends EventEmitter {
 		// by default removes settings that are set to default values, and we
 		// want to reduce number of writes to the backup settings file.
 		if (!this.#settingsEqual(settings, backupSettings)) {
-			log.info(`Writing backup settings to ${backupSettingsPath}`);
+			console.log("Writing backup settings to %s", backupSettingsPath);
 			this.#writeSettings(settings, backupSettingsPath);
 		}
 

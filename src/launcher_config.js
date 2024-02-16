@@ -279,17 +279,16 @@ const proxy = new Proxy({
 	get: function (target, name) {
 		if (target[name] != undefined) {
 			return target[name];
-		} else if (currentConfig[name] != undefined) {
+		} /* else if (currentConfig[name] != undefined) {
 			return currentConfig[name];
-		}
+		} */
 		return configFile[name];
 	},
 	set: function (_, name, value) {
 		currentConfig[name] = value;
 		// Just in case setCurrentConfig does something with the property that
 		// is being set.
-		setCurrentConfig(currentConfig);
-		return true;
+		setCurrentConfig(currentConfig); return true;
 	}
 });
 
