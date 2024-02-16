@@ -1,12 +1,9 @@
 'use strict';
 
-const { app } = require('electron');
 const EventEmitter = require('events');
 const { spawn } = require('child_process');
 const { resolve } = require('path');
 const fs = require('fs');
-
-const log = require('electron-log');
 
 const springPlatform = require('./spring_platform');
 const { config } = require('./launcher_config');
@@ -166,7 +163,7 @@ class Launcher extends EventEmitter {
 		const oldResizable = gui.getMainWindow().resizable;
 		gui.getMainWindow().resizable = true;
 
-		log.info(`Launching Spring with command: ${enginePath} ${args.join(' ')}`);
+		console.log("Launching Spring with command: %s %s", enginePath, args.join(' '));
 		const spring = spawn(enginePath, args,
 			{ stdio: outputMode, stderr: outputMode, windowsHide: false, detached: true });
 

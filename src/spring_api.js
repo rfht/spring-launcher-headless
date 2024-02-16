@@ -5,8 +5,6 @@
 const fs = require('fs');
 const path = require('path');
 
-const log = require('electron-log');
-
 const { bridge } = require('./spring_bridge');
 const { config } = require('./launcher_config');
 const { wizard } = require('./launcher_wizard');
@@ -16,7 +14,7 @@ const EXTS_DIR = 'exts';
 var dev_extension_loader;
 
 function loadExtension(extPath) {
-	log.info(`Including extension: ${extPath}...`);
+	console.log("Including extension: %s...", extPath);
 	return require(extPath);
 }
 
@@ -30,7 +28,7 @@ bridge.on('listening', () => {
 					dev_extension_loader = extension;
 				}
 			} catch (err) {
-				log.error(`Failed to load extension ${file} with error: ${err}`);
+				console.log("Failed to load extension %s with error: %s", file, err);
 			}
 		}
 	});

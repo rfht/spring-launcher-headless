@@ -1,7 +1,5 @@
 'use strict';
 
-const electron = require('electron');
-const { app, BrowserWindow, Menu, Tray, dialog, ipcMain } = electron;
 const { writePath } = require('./spring_platform');
 const { config } = require('./launcher_config');
 const dimensions = require('./renderer/dimensions');

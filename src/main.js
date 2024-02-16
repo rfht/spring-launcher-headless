@@ -5,8 +5,7 @@ const net = require('node:net');
 net.setDefaultAutoSelectFamily(true);
 
 const { config } = require('./launcher_config');
-const { gui } = require('./launcher_gui');
-require('./worker/window');
+//require('./worker/window');
 const { wizard } = require('./launcher_wizard');
 // Setup downloader bindings
 require('./launcher_downloader');
@@ -18,28 +17,20 @@ const { writePath } = require('./spring_platform');
 const file_opener = require('./file_opener');
 
 launcher.on('stdout', (text) => {
-	log.info(text);
+	console.log("%s", text);
 });
 
 launcher.on('stderr', (text) => {
-	log.warn(text);
+	console.log("%s", text);
 });
 
 launcher.on('finished', (code) => {
-	log.info(`Spring finished with code: ${code}`);
-	app.quit();
-	setTimeout(() => {
-		gui.send('launch-finished');
-	}, 100);
+	console.log("Spring finished with code: %s", code);
+	process.exit(0);
 });
 
 launcher.on('failed', (error) => {
-	log.error(error);
-	const mainWindow = gui.getMainWindow();
-	mainWindow.show();
-	setTimeout(() => {
-		gui.send('launch-failed', error);
-	}, 100);
+	console.log("%s", error);
 });
 
 function maybeSetConfig(cfgName) {
@@ -61,14 +52,14 @@ ipcMain.on('change-cfg', (_, cfgName) => {
 });
 
 ipcMain.on('log-upload-ask', () => {
-	log_uploader.upload_ask();
+	//log_uploader.upload_ask();
 });
 
 ipcMain.on('open-install-dir', () => {
 	if (file_opener.open(writePath)) {
-		log.info(`User opened install directory: ${writePath}`);
+		console.log("User opened install directory: %s", writePath);
 	} else {
-		log.error(`Failed to open install directory: ${writePath}`);
+		console.log("Failed to open install directory: %s", writePath);
 	}
 });
 
@@ -80,30 +71,8 @@ ipcMain.on('wizard-check-for-updates', (_, checkForUpdates) => {
 	if (checkForUpdates === settings.getSync('checkForUpdates')) {
 		return;
 	}
-	log.info('wizard-check-for-updates', checkForUpdates);
+	//log.info('wizard-check-for-updates', checkForUpdates);
+	console.log("wizard-check-for-updates");
 	settings.setSync('checkForUpdates', checkForUpdates);
 	generateAndBroadcastWizard();
-});
-
-app.on('ready', () => {
-	if (!gui) {
-		return;
-	}
-	// Use local settings file
-	settings.configure({
-		dir: writePath,
-		fileName: 'launcher_cfg.json',
-		prettify: true
-	});
-	const oldConfig = settings.getSync('config');
-	if (oldConfig) {
-		if (!maybeSetConfig(oldConfig)) {
-			// forget invalid configs
-			settings.unsetSync('config');
-		}
-	}
-});
-
-app.on('window-all-closed', () => {
-	log.info('All windows closed. Quitting...');
 });

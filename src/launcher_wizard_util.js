@@ -1,16 +1,16 @@
 'use strict';
 
-const settings = require('electron-settings');
-
 const { wizard } = require('./launcher_wizard');
 const { config } = require('./launcher_config');
-const { gui } = require('./launcher_gui');
+//const { gui } = require('./launcher_gui');
 
 function generateAndBroadcastWizard()
 {
+	/*
 	if (settings.hasSync('checkForUpdates')) {
 		config.no_downloads = !settings.getSync('checkForUpdates');
 	}
+	*/
 
 	wizard.generateSteps();
 	const steps = wizard.steps
@@ -23,8 +23,8 @@ function generateAndBroadcastWizard()
 			};
 		});
 
-	gui.send('config', config.getConfigObj());
-	gui.send('wizard-list', steps);
+	//gui.send('config', config.getConfigObj());
+	//gui.send('wizard-list', steps);
 }
 
 module.exports = {

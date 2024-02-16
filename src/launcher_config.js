@@ -1,7 +1,5 @@
 'use strict';
 
-const log = require('electron-log');
-
 const argv = require('./launcher_args');
 const { resolveWritePath } = require('./write_path');
 const path = require('path');
@@ -265,7 +263,7 @@ const proxy = new Proxy({
 			}
 		});
 		if (!found) {
-			log.error(`No config with ID: ${id} - ignoring`);
+			console.log("No config with ID: %s - ignoring", id);
 			return false;
 		} else {
 			return true;

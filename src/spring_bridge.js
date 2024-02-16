@@ -3,8 +3,6 @@
 const net = require('net');
 const EventEmitter = require('events');
 
-const log = require('electron-log');
-
 const HOST = '127.0.0.1';
 var port;
 
@@ -15,7 +13,7 @@ class Bridge extends EventEmitter {
 		var server = net.createServer((socket) => {
 			this.socket = socket; // Allow multiple sockets?
 
-			log.info('bridge: connection to Spring established');
+			console.log("bridge: connection to Spring established");
 
 			socket.on('data', (data) => {
 				const msgs = data.toString().split('\n');
@@ -23,13 +21,13 @@ class Bridge extends EventEmitter {
 					if (msg == '') {
 						return;
 					}
-					log.debug(msg);
+					//log.debug(msg);
 					var obj;
 					try {
 						obj = JSON.parse(msg);
 					} catch(e) {
-						log.error(`bridge: failed to parse JSON message: ${msg}`);
-						log.error(e);
+						console.log("bridge: failed to parse JSON message: %s", msg);
+						//log.error(e);
 						return;
 					}
 
@@ -41,12 +39,12 @@ class Bridge extends EventEmitter {
 
 			socket.on('close', () => {
 				this.socket = null;
-				log.warn('bridge: connection to Spring lost.');
+				console.log("bridge: connection to Spring lost.");
 			});
 
 			socket.on('error', (err) => {
 				this.socket = null;
-				log.warn(`bridge: connection with Spring lost due to error: ${err}.`);
+				console.log("bridge: connection with Spring lost due to error: %s", err);
 			});
 		});
 
@@ -54,14 +52,14 @@ class Bridge extends EventEmitter {
 		server.on('listening', (e) => {
 			port = server.address().port;
 
-			log.info(`bridge: listening on port: ${HOST}:${port}`);
+			console.log("bridge: listening on port: %s:%s", HOST, port);
 			this.emit('listening', e);
 		});
 
 
 		server.on('error', (e) => {
 			this.socket = null;
-			log.error(`server error: ${e}`);
+			console.log("server error: %s", e);
 		});
 
 		server.listen(0, HOST);
@@ -82,12 +80,12 @@ class Bridge extends EventEmitter {
 			name: name,
 			command: command
 		});
-		log.debug('launcher->spring', json);
+		//log.debug('launcher->spring', json);
 		this.socket.write(json + '\n');
 	}
 
 	_executeCommand(name, command) {
-		log.debug('spring->launcher', name, command);
+		//log.debug('spring->launcher', name, command);
 		this.emit(name, command);
 	}
 }

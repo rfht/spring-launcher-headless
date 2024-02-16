@@ -1,6 +1,5 @@
 'use strict';
 
-const log = require('electron-log');
 const path = require('path');
 const fs = require('fs');
 const { existsSync, mkdirSync } = fs;
@@ -30,8 +29,8 @@ if (!existsSync(writePath)) {
 	try {
 		mkdirSync(writePath, { recursive: true });
 	} catch (err) {
-		log.error(`Cannot create writePath at: ${writePath}`);
-		log.error(err);
+		console.log("Cannot create writePath at: %s", writePath);
+		//log.error(err);
 	}
 }
 
@@ -48,7 +47,7 @@ try {
 		fs.renameSync(path.join(writePath, '../../data'), writePath);
 	}
 } catch (err) {
-	log.error('Failed to move old installation to new location, ignoring. Error: ', err);
+	console.log("Failed to move old installation to new location, ignoring. Error: $s", err);
 }
 
 if (existsSync(FILES_DIR) && existsSync(writePath)) {
@@ -60,24 +59,16 @@ if (existsSync(FILES_DIR) && existsSync(writePath)) {
 		try {
 			fs.copyFileSync(srcPath, dstPath);
 		} catch (err) {
-			log.error(`Failed to copy file from ${srcPath} tp ${dstPath}`);
-			log.error(err);
+			console.log("Failed to copy file from %s to %s", srcPath, dstPath);
+			//log.error(err);
 		}
 		//}
 	});
 }
 
 let prDownloaderBin;
-if (platformName === 'win32') {
-	prDownloaderBin = 'pr-downloader.exe';
-	exports.springBin = 'spring.exe';
-} else if (platformName === 'linux') {
-	prDownloaderBin = 'pr-downloader';
-	exports.springBin = 'spring';
-} else {
-	log.error(`Unsupported platform: ${platformName}`);
-	process.exit(-1);
-}
+prDownloaderBin = 'pr-downloader';
+exports.springBin = 'spring';
 
 exports.prDownloaderPath = path.resolve(`${__dirname}/../bin/${prDownloaderBin}`);
 if (!existsSync(exports.prDownloaderPath)) {
